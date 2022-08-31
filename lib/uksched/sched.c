@@ -40,7 +40,14 @@
 #if CONFIG_LIBUKSCHEDCOOP
 #include <uk/schedcoop.h>
 #endif
-#if CONFIG_LIBUKSIGNAL
+#if CONFIG_LIBUKSIGNALvoid uk_sched_start(struct uk_sched *sched)
+{
+	UK_ASSERT(sched != NULL);
+#ifdef _SHADOW_STACK_
+	__asm __volatile ( "mov x18, %0" : : "r" (sched->idle.shadow_stack) );
+#endif
+	ukplat_thread_ctx_start(&sched->plat_ctx_cbs, sched->idle.ctx);
+}
 #include <uk/uk_signal.h>
 #endif
 #include <uk/syscall.h>
@@ -142,6 +149,9 @@ struct uk_sched *uk_sched_create(struct uk_alloc *a, size_t prv_size)
 void uk_sched_start(struct uk_sched *sched)
 {
 	UK_ASSERT(sched != NULL);
+#ifdef _SHADOW_STACK_
+	__asm __volatile ( "mov x18, %0" : : "r" (sched->idle.shadow_stack) );
+#endif
 	ukplat_thread_ctx_start(&sched->plat_ctx_cbs, sched->idle.ctx);
 }
 
