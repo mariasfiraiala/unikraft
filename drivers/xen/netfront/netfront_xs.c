@@ -141,7 +141,7 @@ int netfront_xb_init(struct netfront_dev *nfdev, struct uk_alloc *a)
 		goto out;
 
 	/* read backend path */
-	xendev->otherend = xs_read(XBT_NIL, xendev->nodename, "backend");
+	xendev->otherend = uk_xs_read(XBT_NIL, xendev->nodename, "backend");
 	if (PTRISERR(xendev->otherend)) {
 		uk_pr_err("Error reading backend path.\n");
 		rc = PTR2ERR(xendev->otherend);
@@ -150,7 +150,7 @@ int netfront_xb_init(struct netfront_dev *nfdev, struct uk_alloc *a)
 	}
 
 	/* read MAC address */
-	mac_str = xs_read(XBT_NIL, xendev->nodename, "mac");
+	mac_str = uk_xs_read(XBT_NIL, xendev->nodename, "mac");
 	if (PTRISERR(mac_str)) {
 		uk_pr_err("Error reading MAC address.\n");
 		rc = PTR2ERR(mac_str);
@@ -166,7 +166,7 @@ int netfront_xb_init(struct netfront_dev *nfdev, struct uk_alloc *a)
 	free(mac_str);
 
 	/* read IP address */
-	ip_str = xs_read(XBT_NIL, xendev->otherend, "ip");
+	ip_str = uk_xs_read(XBT_NIL, xendev->otherend, "ip");
 	if (PTRISERR(ip_str)) {
 		uk_pr_debug("No IP address information found on XenStore\n");
 		memset(&nfdev->econf, 0, sizeof(struct xs_econf));
@@ -179,7 +179,7 @@ int netfront_xb_init(struct netfront_dev *nfdev, struct uk_alloc *a)
 	}
 
 	/* maximum queues number */
-	int_str = xs_read(XBT_NIL, xendev->otherend,
+	int_str = uk_xs_read(XBT_NIL, xendev->otherend,
 		"multi-queue-max-queues");
 	if (!PTRISERR(int_str)) {
 		nfdev->max_queue_pairs = (uint16_t) strtoul(int_str, NULL, 10);
@@ -187,7 +187,7 @@ int netfront_xb_init(struct netfront_dev *nfdev, struct uk_alloc *a)
 	}
 
 	/* spit event channels */
-	int_str = xs_read(XBT_NIL, xendev->otherend,
+	int_str = uk_xs_read(XBT_NIL, xendev->otherend,
 		"feature-split-event-channels");
 	if (!PTRISERR(int_str)) {
 		nfdev->split_evtchn = (bool) strtoul(int_str, NULL, 10);
@@ -292,13 +292,13 @@ static void xs_delete_queue(struct netfront_dev *nfdev, uint16_t queue_id,
 	rc = asprintf(&path, "%s/tx-ring-ref", dir);
 	if (rc < 0)
 		goto out;
-	xs_rm(xbt, path);
+	uk_xs_rm(xbt, path);
 	free(path);
 
 	rc = asprintf(&path, "%s/rx-ring-ref", dir);
 	if (rc < 0)
 		goto out;
-	xs_rm(xbt, path);
+	uk_xs_rm(xbt, path);
 	free(path);
 
 	if (nfdev->split_evtchn) {
@@ -306,19 +306,19 @@ static void xs_delete_queue(struct netfront_dev *nfdev, uint16_t queue_id,
 		rc = asprintf(&path, "%s/event-channel-tx", dir);
 		if (rc < 0)
 			goto out;
-		xs_rm(xbt, path);
+		uk_xs_rm(xbt, path);
 		free(path);
 		rc = asprintf(&path, "%s/event-channel-rx", dir);
 		if (rc < 0)
 			goto out;
-		xs_rm(xbt, path);
+		uk_xs_rm(xbt, path);
 		free(path);
 	} else {
 		/* shared event channel */
 		rc = asprintf(&path, "%s/event-channel", dir);
 		if (rc < 0)
 			goto out;
-		xs_rm(xbt, path);
+		uk_xs_rm(xbt, path);
 		free(path);
 	}
 
@@ -385,7 +385,7 @@ int netfront_xb_connect(struct netfront_dev *nfdev)
 	UK_ASSERT(xendev != NULL);
 
 again:
-	rc = xs_transaction_start(&xbt);
+	rc = uk_xs_transaction_start(&xbt);
 	if (rc)
 		goto abort_transaction;
 
@@ -397,7 +397,7 @@ again:
 	if (rc)
 		goto abort_transaction;
 
-	rc = xs_transaction_end(xbt, 0);
+	rc = uk_xs_transaction_end(xbt, 0);
 	if (rc == -EAGAIN)
 		goto again;
 
@@ -408,7 +408,7 @@ again:
 	return rc;
 
 abort_transaction:
-	xs_transaction_end(xbt, 1);
+	uk_xs_transaction_end(xbt, 1);
 
 	return rc;
 }
@@ -454,7 +454,7 @@ static int be_watch_start(struct xenbus_device *xendev, const char *path)
 
 static int be_watch_stop(struct xenbus_device *xendev)
 {
-	return xs_unwatch(XBT_NIL, xendev->otherend_watch);
+	return uk_xs_unwatch(XBT_NIL, xendev->otherend_watch);
 }
 
 #define WAIT_BE_STATE_CHANGE_WHILE_COND(state_cond) \

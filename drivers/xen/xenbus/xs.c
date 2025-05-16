@@ -64,7 +64,7 @@ static inline int xs_msg(enum xsd_sockmsg_type type, xenbus_transaction_t xbt,
 	return xs_msg_reply(type, xbt, reqs, reqs_num, NULL);
 }
 
-char *xs_read(xenbus_transaction_t xbt, const char *path, const char *node)
+char *uk_xs_read(xenbus_transaction_t xbt, const char *path, const char *node)
 {
 	struct xs_iovec req, rep;
 	char *fullpath, *value;
@@ -95,7 +95,7 @@ out:
 	return value;
 }
 
-int xs_write(xenbus_transaction_t xbt, const char *path, const char *node,
+int uk_xs_write(xenbus_transaction_t xbt, const char *path, const char *node,
 	const char *value)
 {
 	struct xs_iovec req[2];
@@ -183,7 +183,7 @@ char **xs_ls(xenbus_transaction_t xbt, const char *path)
 	return res;
 }
 
-int xs_rm(xenbus_transaction_t xbt, const char *path)
+int uk_xs_rm(xenbus_transaction_t xbt, const char *path)
 {
 	struct xs_iovec req;
 
@@ -547,7 +547,7 @@ struct xenbus_watch *xs_watch_path(xenbus_transaction_t xbt, const char *path)
 	return &xsw->base;
 }
 
-int xs_unwatch(xenbus_transaction_t xbt, struct xenbus_watch *watch)
+int uk_xs_unwatch(xenbus_transaction_t xbt, struct xenbus_watch *watch)
 {
 	struct xs_watch *xsw, *_xsw;
 	struct xs_iovec req[2];
@@ -584,7 +584,7 @@ out:
  * Transactions
  */
 
-int xs_transaction_start(xenbus_transaction_t *xbt)
+int uk_xs_transaction_start(xenbus_transaction_t *xbt)
 {
 	/*
 	 * xenstored becomes angry if you send a length 0 message,
@@ -607,7 +607,7 @@ int xs_transaction_start(xenbus_transaction_t *xbt)
 	return err;
 }
 
-int xs_transaction_end(xenbus_transaction_t xbt, int abort)
+int uk_xs_transaction_end(xenbus_transaction_t xbt, int abort)
 {
 	struct xs_iovec req;
 
@@ -652,7 +652,7 @@ int xs_read_integer(xenbus_transaction_t xbt, const char *path, int *value)
 	if (path == NULL || value == NULL)
 		return -EINVAL;
 
-	value_str = xs_read(xbt, path, NULL);
+	value_str = uk_xs_read(xbt, path, NULL);
 	if (PTRISERR(value_str))
 		return PTR2ERR(value_str);
 
@@ -673,7 +673,7 @@ int xs_scanf(xenbus_transaction_t xbt, const char *dir, const char *node,
 	if (fmt == NULL)
 		return -EINVAL;
 
-	val = xs_read(xbt, dir, node);
+	val = uk_xs_read(xbt, dir, node);
 	if (PTRISERR(val)) {
 		err = PTR2ERR(val);
 		goto out;
@@ -706,7 +706,7 @@ int xs_printf(xenbus_transaction_t xbt, const char *dir, const char *node,
 
 	/* send to Xenstore if vsnprintf was successful */
 	if (_err > 0)
-		err = xs_write(xbt, dir, node, val);
+		err = uk_xs_write(xbt, dir, node, val);
 
 	/*
 	 * if message sent to Xenstore was successful,
@@ -723,7 +723,7 @@ domid_t xs_get_self_id(void)
 	char *domid_str;
 	domid_t domid;
 
-	domid_str = xs_read(XBT_NIL, "domid", NULL);
+	domid_str = uk_xs_read(XBT_NIL, "domid", NULL);
 	if (PTRISERR(domid_str))
 		UK_CRASH("Error reading domain id.");
 

@@ -10,10 +10,10 @@ _xenbus_register_driver
 uk_xb_malloc
 uk_xb_calloc
 uk_xb_free
-xs_read
-xs_write
+uk_xs_read
+uk_xs_write
 xs_ls
-xs_rm
+uk_xs_rm
 xs_char_to_perm
 xs_perm_to_char
 xs_str_to_perm
@@ -24,9 +24,9 @@ xs_get_perm
 xs_set_perm
 xs_del_perm
 xs_watch_path
-xs_unwatch
-xs_transaction_start
-xs_transaction_end
+uk_xs_unwatch
+uk_xs_transaction_start
+uk_xs_transaction_end
 xs_debug_msg
 xs_read_integer
 xs_scanf

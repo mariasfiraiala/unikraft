@@ -52,7 +52,7 @@
  * @return On success, returns a malloc'd copy of the value. On error, returns
  * a negative error number which should be checked using PTRISERR.
  */
-char *xs_read(xenbus_transaction_t xbt, const char *path, const char *node);
+char *uk_xs_read(xenbus_transaction_t xbt, const char *path, const char *node);
 
 /*
  * Associates a value with a path.
@@ -63,7 +63,7 @@ char *xs_read(xenbus_transaction_t xbt, const char *path, const char *node);
  * @param value Xenstore value
  * @return 0 on success, a negative errno value on error.
  */
-int xs_write(xenbus_transaction_t xbt, const char *path, const char *node,
+int uk_xs_write(xenbus_transaction_t xbt, const char *path, const char *node,
 	const char *value);
 
 /*
@@ -86,7 +86,7 @@ char **xs_ls(xenbus_transaction_t xbt, const char *path);
  * @param path Xenstore path
  * @return 0 on success, a negative errno value on error.
  */
-int xs_rm(xenbus_transaction_t xbt, const char *path);
+int uk_xs_rm(xenbus_transaction_t xbt, const char *path);
 
 /*
  * Xenstore permissions
@@ -223,7 +223,7 @@ struct xenbus_watch *xs_watch_path(xenbus_transaction_t xbt, const char *path);
  * @param watch Xenbus watch
  * @return 0 on success, a negative errno value on error.
  */
-int xs_unwatch(xenbus_transaction_t xbt, struct xenbus_watch *watch);
+int uk_xs_unwatch(xenbus_transaction_t xbt, struct xenbus_watch *watch);
 
 /*
  * Start a xenbus transaction. Returns the transaction in xbt on
@@ -232,7 +232,7 @@ int xs_unwatch(xenbus_transaction_t xbt, struct xenbus_watch *watch);
  * @param xbt Address for returning the Xenbus transaction id
  * @return 0 on success, a negative errno value on error.
  */
-int xs_transaction_start(xenbus_transaction_t *xbt);
+int uk_xs_transaction_start(xenbus_transaction_t *xbt);
 
 /*
  * End a xenbus transaction. Returns non-zero on failure.
@@ -243,7 +243,7 @@ int xs_transaction_start(xenbus_transaction_t *xbt);
  * @param abort Non-zero if transaction should be aborted
  * @return 0 on success, a negative errno value on error.
  */
-int xs_transaction_end(xenbus_transaction_t xbt, int abort);
+int uk_xs_transaction_end(xenbus_transaction_t xbt, int abort);
 
 /*
  * Sends a debug message to the Xenstore daemon for writing it in the debug log
@@ -264,7 +264,7 @@ int xs_debug_msg(const char *msg);
 int xs_read_integer(xenbus_transaction_t xbt, const char *path, int *value);
 
 /*
- * Contraction of sscanf and xs_read(node/path).
+ * Contraction of sscanf and uk_xs_read(node/path).
  *
  * @param xbt Xenbus transaction id
  * @param dir Xenstore directory
@@ -277,7 +277,7 @@ int xs_scanf(xenbus_transaction_t xbt, const char *dir, const char *node,
 	const char *fmt, ...) __scanf(4, 5);
 
 /*
- * Contraction of sprintf and xs_write(node/path).
+ * Contraction of sprintf and uk_xs_write(node/path).
  *
  * @param xbt Xenbus transaction id
  * @param dir Xenstore directory

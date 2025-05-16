@@ -114,7 +114,7 @@ int blkfront_xb_init(struct blkfront_dev *dev)
 	}
 
 	/* Read otherend path */
-	xendev->otherend = xs_read(XBT_NIL, xendev->nodename, "backend");
+	xendev->otherend = uk_xs_read(XBT_NIL, xendev->nodename, "backend");
 	if (PTRISERR(xendev->otherend)) {
 		uk_pr_err("Failed to read backend path: %d.\n", err);
 		err = PTR2ERR(xendev->otherend);
@@ -208,7 +208,7 @@ static int blkfront_xb_get_capabilities(struct blkfront_dev *blkdev)
 		return err;
 	}
 
-	mode = xs_read(XBT_NIL, xendev->otherend, "mode");
+	mode = uk_xs_read(XBT_NIL, xendev->otherend, "mode");
 	if (PTRISERR(mode)) {
 		uk_pr_err("Failed to read mode from xs: %d.\n", err);
 		return PTR2ERR(mode);
@@ -342,11 +342,11 @@ static int blkfront_xb_delete_ring_info(struct blkfront_dev *dev,
 		}
 	}
 
-	err = xs_rm(XBT_NIL, node_ring_ref);
+	err = uk_xs_rm(XBT_NIL, node_ring_ref);
 	if (err)
 		uk_pr_err("Failed to remove ring_ref from xs: %d\n", err);
 
-	err = xs_rm(XBT_NIL, node_evtchn);
+	err = uk_xs_rm(XBT_NIL, node_evtchn);
 	if (err)
 		uk_pr_err("Failed to remove event-channel from xs: %d\n", err);
 out:
@@ -363,7 +363,7 @@ static int blkfront_xb_write_rings_info(struct blkfront_dev *dev)
 	UK_ASSERT(dev != NULL);
 
 again:
-	err = xs_transaction_start(&xbt);
+	err = uk_xs_transaction_start(&xbt);
 	if (err)
 		goto abort_transaction;
 
@@ -377,7 +377,7 @@ again:
 		}
 	}
 
-	err = xs_transaction_end(xbt, 0);
+	err = uk_xs_transaction_end(xbt, 0);
 	if (err == -EAGAIN)
 		goto again;
 
@@ -387,7 +387,7 @@ again:
 	return err;
 
 abort_transaction:
-	xs_transaction_end(xbt, 1);
+	uk_xs_transaction_end(xbt, 1);
 	return err;
 }
 

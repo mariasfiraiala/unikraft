@@ -60,7 +60,7 @@ static int xs_read_backend_info(struct xenbus_device *xendev)
 	xendev->otherend_id = (domid_t)val;
 
 	/* Read backend path. */
-	xendev->otherend = xs_read(XBT_NIL, xendev->nodename, "backend");
+	xendev->otherend = uk_xs_read(XBT_NIL, xendev->nodename, "backend");
 	if (PTRISERR(xendev->otherend)) {
 		rc = PTR2ERR(xendev->otherend);
 		xendev->otherend = NULL;
@@ -79,7 +79,7 @@ static int xs_read_backend_ring_info(struct xenbus_device *xendev,
 	char *int_str;
 
 	/* Read max-rings. */
-	int_str = xs_read(XBT_NIL, xendev->otherend, "max-rings");
+	int_str = uk_xs_read(XBT_NIL, xendev->otherend, "max-rings");
 	if (PTRISERR(int_str)) {
 		rc = PTR2ERR(int_str);
 		uk_pr_err("Error: %d\n", rc);
@@ -90,7 +90,7 @@ static int xs_read_backend_ring_info(struct xenbus_device *xendev,
 	free(int_str);
 
 	/* Read max-ring-page-order. */
-	int_str = xs_read(XBT_NIL, xendev->otherend, "max-ring-page-order");
+	int_str = uk_xs_read(XBT_NIL, xendev->otherend, "max-ring-page-order");
 	if (PTRISERR(int_str)) {
 		rc = PTR2ERR(int_str);
 		uk_pr_err("Error: %d\n", rc);
@@ -124,7 +124,7 @@ int p9front_xb_init(struct p9front_dev *p9fdev)
 	}
 
 	/* Check versions string. */
-	versions = xs_read(XBT_NIL, xendev->otherend, "versions");
+	versions = uk_xs_read(XBT_NIL, xendev->otherend, "versions");
 	if (PTRISERR(versions)) {
 		uk_pr_err("Error reading backend version information.\n");
 		rc = PTR2ERR(versions);
@@ -148,7 +148,7 @@ int p9front_xb_init(struct p9front_dev *p9fdev)
 	}
 
 	/* Read tag. */
-	p9fdev->tag = xs_read(XBT_NIL, xendev->nodename, "tag");
+	p9fdev->tag = uk_xs_read(XBT_NIL, xendev->nodename, "tag");
 	if (PTRISERR(p9fdev->tag)) {
 		uk_pr_err("Error reading 9pfs mount tag.\n");
 		rc = PTR2ERR(p9fdev->tag);
@@ -204,13 +204,13 @@ static void xs_delete_ring(struct p9front_dev *p9fdev,
 	rc = asprintf(&path, "%s/ring-ref%u", xendev->nodename, i);
 	if (rc < 0)
 		return;
-	xs_rm(xbt, path);
+	uk_xs_rm(xbt, path);
 	free(path);
 
 	rc = asprintf(&path, "%s/event-channel-%u", xendev->nodename, i);
 	if (rc < 0)
 		return;
-	xs_rm(xbt, path);
+	uk_xs_rm(xbt, path);
 	free(path);
 }
 
@@ -278,7 +278,7 @@ static int be_watch_start(struct xenbus_device *xendev, const char *path)
 
 static int be_watch_stop(struct xenbus_device *xendev)
 {
-	return xs_unwatch(XBT_NIL, xendev->otherend_watch);
+	return uk_xs_unwatch(XBT_NIL, xendev->otherend_watch);
 }
 
 #define WAIT_BE_STATE_CHANGE_WHILE_COND(state_cond) \
@@ -336,7 +336,7 @@ int p9front_xb_connect(struct p9front_dev *p9fdev)
 	UK_ASSERT(xendev != NULL);
 
 again:
-	rc = xs_transaction_start(&xbt);
+	rc = uk_xs_transaction_start(&xbt);
 	if (rc)
 		goto abort_transaction;
 
@@ -348,7 +348,7 @@ again:
 	if (rc)
 		goto abort_transaction;
 
-	rc = xs_transaction_end(xbt, 0);
+	rc = uk_xs_transaction_end(xbt, 0);
 	if (rc == -EAGAIN)
 		goto again;
 
@@ -359,6 +359,6 @@ again:
 	return rc;
 
 abort_transaction:
-	xs_transaction_end(xbt, 1);
+	uk_xs_transaction_end(xbt, 1);
 	return rc;
 }

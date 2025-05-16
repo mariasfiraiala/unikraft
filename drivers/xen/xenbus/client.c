@@ -163,7 +163,7 @@ int uk_xenbus_switch_state(xenbus_transaction_t xbt,
 		abort = 1;
 
 		if (xbt == XBT_NIL) {
-			err = xs_transaction_start(&xbt);
+			err = uk_xs_transaction_start(&xbt);
 			if (err)
 				goto exit;
 			need_transaction_end = 1;
@@ -176,14 +176,14 @@ int uk_xenbus_switch_state(xenbus_transaction_t xbt,
 
 		/* set new state */
 		snprintf(new_state_str, sizeof(new_state_str), "%d", state);
-		err = xs_write(xbt, state_path, NULL, new_state_str);
+		err = uk_xs_write(xbt, state_path, NULL, new_state_str);
 
 		abort = 0;
 exit:
 		if (need_transaction_end) {
 			int _err;
 
-			_err = xs_transaction_end(xbt, abort);
+			_err = uk_xs_transaction_end(xbt, abort);
 			if (!err)
 				err = _err;
 			xbt = XBT_NIL;
@@ -233,7 +233,7 @@ int uk_xenbus_wait_for_state_change(const char *path, XenbusState *state,
 
 out:
 	if (watch_is_local)
-		xs_unwatch(XBT_NIL, watch);
+		uk_xs_unwatch(XBT_NIL, watch);
 
 	return err;
 }
